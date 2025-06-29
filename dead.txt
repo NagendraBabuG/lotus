@@ -1,0 +1,76 @@
+import ast
+
+#still need to check for export case
+# unused import case
+
+
+
+class DeadCodeRemover(ast.NodeTransformer):
+    def __init__(self):
+        self.defined_variables = set()
+        self.used_variables = set()
+        self.defined_functions = set()
+        self.used_functions = set()
+        self.in_class = False 
+
+    def get_used_var_func(self, node):
+        for child in ast.walk(node):
+            if isinstance(child, ast.Name):
+                if isinstance(child.ctx, ast.Load):
+                    self.used_variables.add(child.id)
+                    self.used_functions.add(child.id)
+            elif isinstance(child, ast.Assign):
+                for target in child.targets:
+                    if isinstance(target, ast.Name):
+                        self.defined_variables.add(target.id)
+            elif isinstance(child, ast.FunctionDef):
+                self.defined_functions.add(child.name)
+            elif isinstance(child, ast.Call):
+                if isinstance(child.func, ast.Name):
+                    self.used_functions.add(child.func.id)
+
+    def visit_ClassDef(self, node):
+        self.in_class = True
+        self.generic_visit(node)
+        self.in_class = False
+        return node
+
+    def visit_Assign(self, node):
+        if not self.in_class:
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self.defined_variables.add(target.id)
+            self.generic_visit(node)
+            if isinstance(node.targets[0], ast.Name) and node.targets[0].id not in self.used_variables:
+                return None
+        return node
+
+    def visit_Name(self, node):
+        if isinstance(node.ctx, ast.Load):
+            self.used_variables.add(node.id)
+            self.used_functions.add(node.id)
+        self.generic_visit(node)
+        return node
+
+    def visit_FunctionDef(self, node):
+        if not self.in_class:
+            self.defined_functions.add(node.name)
+            self.generic_visit(node)
+            if node.name not in self.used_functions:
+                return None
+        else:
+            self.generic_visit(node)
+        return node
+
+    def remove_dead_code(self, tree):
+        self.get_used_var_func(tree)
+        self.visit(tree)
+        ast.fix_missing_locations(tree)
+        return ast.unparse(tree)
+
+    def get_refactored_code(self, source_code):
+        try:
+            tree = ast.parse(source_code)
+            return self.remove_dead_code(tree)
+        except SyntaxError as e:
+            raise ValueError(f"Syntax error in source code: {e}")
