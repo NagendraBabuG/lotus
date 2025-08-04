@@ -179,35 +179,52 @@ def run_tests(test_file):
 def get_files(directory):
     return [f for f in glob.glob(os.path.join(os.path.abspath(directory), "*.py"))]
 
-def get_mod_name(file_path):
-    return os.path.splitext(os.path.basename(file_path))[0]
+def get_mod_name(file_path, is_refactored=False):
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    if is_refactored:
+        # Remove pipno_X_ prefix if present
+        match = re.match(r'pipno_\d+_(.*)', base_name)
+        return match.group(1) if match else base_name
+    return base_name
+
+# Initialize log file
 with open(RESULT_LOG, 'w', encoding='utf-8') as f:
     f.write("Test Results Log\n")
     f.write("=" * 60 + "\n")
 
-make_dirs('./tests/source_tests', './pynguin-report')
+# Define directories
+source_dir = os.path.expanduser("~/Desktop/pqc/refactor/input/cryptome/excuted")
+refactored_dir = os.path.expanduser("~/Desktop/pqc/refactor/output/cryptodoke/excuted")
+make_dirs(os.path.join(source_dir), os.path.join(refactored_dir), './tests/source_tests', './pynguin-report')
 
-source_files = get_files('./test/source')
-refactored_files = get_files('./test/target')
+# Get source and refactored files
+source_files = get_files(source_dir)
+refactored_files = get_files(refactored_dir)
 
+# Create mapping between source and refactored modules
 source_module_names = {get_mod_name(f) for f in source_files}
-refactored_module_names = {get_mod_name(f) for f in refactored_files}
+refactored_module_names = {get_mod_name(f, is_refactored=True) for f in refactored_files}
 file_mapping = {
-    name: name for name in source_module_names & refactored_module_names
+    source_name: refactored_name
+    for source_name in source_module_names
+    for refactored_name in refactored_module_names
+    if source_name == refactored_name
 }
 
+# Log file mapping
 with open('filemap.txt', 'a') as f:
     f.write(str(file_mapping) + "\n")
 
 all_tests_pass = True
 
+# Generate tests for source files
 for source_file in source_files:
     if not has_func_or_class(source_file):
         print(f"File doesn't have testable usecases: {source_file}")
         continue
     module_name = get_mod_name(source_file)
     print(f"Generating tests for source module: {module_name}")
-    run_pynguin('./test/source', './tests/source_tests', module_name)
+    run_pynguin(source_dir, './tests/source_tests', module_name)
 
 # Run and compare tests on refactored code
 for source_file in source_files:
@@ -226,15 +243,19 @@ for source_file in source_files:
         log_result(source_module, refactored_module, False, "FAIL (Missing Test)")
         continue
 
-    refactored_module_path = os.path.join('./test/target', f"{refactored_module}.py")
-    if not os.path.exists(refactored_module_path):
-        print(f"Refactored module {refactored_module_path} not found. Skipping.")
+    # Find the actual refactored file with pipno_X_ prefix
+    refactored_file = next(
+        (f for f in refactored_files if get_mod_name(f, is_refactored=True) == refactored_module),
+        None
+    )
+    if not refactored_file or not os.path.exists(refactored_file):
+        print(f"Refactored module {refactored_module} not found. Skipping.")
         log_result(source_module, refactored_module, False, "FAIL (Missing Refactored Module)")
         all_tests_pass = False
         continue
 
     print(f"Running tests on refactored: {refactored_module}")
-    if not modify_imports(test_file, './test/target', source_module, refactored_module):
+    if not modify_imports(test_file, refactored_dir, source_module, refactored_module):
         log_result(source_module, refactored_module, False, "FAIL (Import Modification)")
         all_tests_pass = False
         continue
