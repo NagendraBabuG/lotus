@@ -1,33 +1,31 @@
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization
+/**
+ * @name Insecure ephemeral ECC private key generation
+ * @description Generating ECC private keys at runtime using ec.generate_private_key() 
+ *              typically results in ephemeral keys that are not persisted or protected,
+ *              which can lead to loss of private keys or poor key management.
+ * @kind problem
+ * @problem.severity warning
+ * @id py/insecure-ecc-key-generation
+ * @tags security
+ *       cryptography
+ *       key-management
+ */
 
-private_key = ec.generate_private_key(ec.SECP256R1())
-public_key = private_key.public_key()
+import python
+import semmle.python.ApiGraphs
+import semmle.python.dataflow.new.DataFlow
 
-public_pem = public_key.public_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+from DataFlow::Node keyGenCall
+where
+  // Detect calls to cryptography.hazmat.primitives.asymmetric.ec.generate_private_key
+  keyGenCall = API::moduleImport("cryptography")
+                  .getMember("hazmat")
+                  .getMember("primitives")
+                  .getMember("asymmetric")
+                  .getMember("ec")
+                  .getMember("generate_private_key")
+                  .getACall()
 
-print("Public Key (PEM format):")
-print(public_pem.decode())
-
-message = input("Enter a message to be signed: ").encode()
-
-signature = private_key.sign(
-    message,
-    ec.ECDSA(hashes.SHA256())
-)
-
-print("Signature:", signature)
-
-try:
-    public_key.verify(
-        signature,
-        message,
-        ec.ECDSA(hashes.SHA256())
-    )
-    print("Signature is valid")
-except Exception as e:
-    print("Signature verification failed:", e)
+select keyGenCall, 
+  "Insecure generation of ECC private key using ec.generate_private_key(). " +
+  "This creates an ephemeral key that is usually not persisted securely."
