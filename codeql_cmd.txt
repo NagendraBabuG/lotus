@@ -1,0 +1,12 @@
+codeql pack install
+
+codeql pack download codeql/cpp-all codeql/csharp-all codeql/go-all codeql/java-all codeql/javascript-all codeql/python-all codeql/ruby-all codeql/swift-all codeql/rust-all codeql/cpp-queries codeql/csharp-queries codeql/go-queries codeql/java-queries codeql/javascript-queries codeql/python-queries codeql/ruby-queries codeql/swift-queries codeql/rust-queries
+
+codeql database analyze demo_Db --format=sarif-latest --output=result.sarif codeql/python-queries
+
+
+https://docs.github.com/en/code-security/codeql-cli/codeql-cli-manual/database-analyze
+
+
+
+C:\Users\nagendra\Downloads\codeql-win64\codeql>codeql database create jack_db --language=java --source-root=C:\Users\nagendra\Downloads\jackson\jackson-json-crypto-master
