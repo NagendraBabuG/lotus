@@ -8,5 +8,48 @@ codeql database analyze demo_Db --format=sarif-latest --output=result.sarif code
 https://docs.github.com/en/code-security/codeql-cli/codeql-cli-manual/database-analyze
 
 
+codeql database create jack_db --language=java --source-root=C:\Users\nagendra\Downloads\jackson\jackson-json-crypto-master
 
-C:\Users\nagendra\Downloads\codeql-win64\codeql>codeql database create jack_db --language=java --source-root=C:\Users\nagendra\Downloads\jackson\jackson-json-crypto-master
+
+codeql pack init python/custom-queries
+
+
+
+
+eries\1.10.0\Diagnostics\ExtractionErrors.ql.
+[48/567] No need to rerun C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\Diagnostics\ExtractionWarnings.ql.
+[49/567] No need to rerun C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\Diagnostics\SuccessfullyExtractedFiles.ql.
+[50/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\BadMacOrderDecryptThenMac.qlx.
+[51/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\BadMacOrderDecryptToMac.qlx.
+[52/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\BadMacOrderMacOnEncryptPlaintext.qlx.
+[53/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\BrokenCrypto.qlx.
+[54/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\InsecureIVorNonceSource.qlx.
+[55/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\NonAESGCMCipher.qlx.
+[56/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\ReusedNonce.qlx.
+[57/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\TestAESGCMNonce.qlx.
+[58/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\TestCipher.qlx.
+[59/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\TestHash.qlx.
+[60/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\UnknownHash.qlx.
+[61/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\UnknownIVorNonceSource.qlx.
+[62/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\UnknownKDFIterationCount.qlx.
+[63/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakAsymmetricKeyGenSize.qlx.
+[64/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakBlockModes.qlx.
+[65/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakHash.qlx.
+[66/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakKDFIterationCount.qlx.
+[67/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakKDFKeySize.qlx.
+[68/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\Examples\WeakSymmetricCipher.qlx.
+[69/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownAsymmetricAlgorithm.qlx.
+[70/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownAsymmetricCipherAlgorithm.qlx.
+[71/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownAsymmetricOperationAlgorithm.qlx.
+[72/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownCipherAlgorithm.qlx.
+[73/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownEllipticCurveAlgorithm.qlx.
+[74/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownHashingAlgorithm.qlx.
+[75/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownHashingOperation.qlx.
+[76/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownHashingOperationAlgorithm.qlx.
+[77/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownKeyDerivationAlgorithm.qlx.
+[78/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownKeyDerivationOperation.qlx.
+[79/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownKeyDerivationOperationAlgorithm.qlx.
+[80/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\KnownSymmetricCipherAlgorithm.qlx.
+[81/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\LikelyCryptoAPIFunction.qlx.
+[82/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\InventorySlices\UnknownOperationAlgorithm.qlx.
+[83/567] Loaded C:\Users\nagendra\.codeql\packages\codeql\java-queries\1.10.0\experimental\quantum\PrintCBOMGraph.qlx.
