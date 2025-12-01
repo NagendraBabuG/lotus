@@ -52,4 +52,4 @@ def convertFileFormat(input, output):
         json.dump(res_output, f, indent=4)
 
 if __name__ == "__main__":
-    convertFileFormat("jack_result.sarif", "results.json")
+    convertFileFormat("jav_res.sarif", "jav_results.json")

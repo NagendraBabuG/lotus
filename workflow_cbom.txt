@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - "**"       # run on any branch when code is committed
+  workflow_dispatch:
+
+jobs:
+  cbom-scan:
+    runs-on: ubuntu-latest
+    name: CBOM generation
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          java-package: jdk
+          check-latest: false
+
+      - name: Create CBOM
+        uses: cbomkit/cbomkit-action@v2.1.1
+        id: cbom
+        env:
+          CBOMKIT_LANGUAGES: java, python
+
+      - name: Upload CBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CBOM
+          path: ${{ steps.cbom.outputs.pattern }}
+          if-no-files-found: warn

@@ -1,0 +1,18 @@
+{
+    "total_results": 1,
+    "results": [
+        {
+            "ruleId": "py/stack-trace-exposure",
+            "ruleIndex": 17,
+            "message": "[Stack trace information](1) flows to this location and may be exposed to an external user.",
+            "level": null,
+            "kind": null,
+            "properties": {},
+            "file": "app.py",
+            "startLine": 65,
+            "startColumn": 24,
+            "endLine": null,
+            "endColumn": 65
+        }
+    ]
+}

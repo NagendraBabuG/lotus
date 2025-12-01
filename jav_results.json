@@ -1,0 +1,18 @@
+{
+    "codeql_results": 1,
+    "results": [
+        {
+            "ruleId": "java/weak-cryptographic-algorithm",
+            "ruleIndex": 34,
+            "message": "Cryptographic algorithm [AES/CBC/PKCS5Padding](1) is insecure. CBC mode with PKCS#5 or PKCS#7 padding is vulnerable to padding oracle attacks. Consider using GCM instead.",
+            "level": null,
+            "kind": null,
+            "properties": {},
+            "file": "src/main/java/com/codingrodent/jackson/crypto/BaseCryptoContext.java",
+            "startLine": 89,
+            "startColumn": 26,
+            "endLine": null,
+            "endColumn": 56
+        }
+    ]
+}
