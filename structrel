@@ -1,0 +1,170 @@
+import ast
+
+
+class ParentAssigner(ast.NodeVisitor):
+    def __init__(self):
+        self.parent_map = {}
+
+    def visit(self, node):
+        for child in ast.iter_child_nodes(node):
+            self.parent_map[child] = node
+            self.visit(child)
+
+
+class ObjRenamer(ast.NodeTransformer):
+    def __init__(self, temp_store):
+        self.temp_store = temp_store
+
+    def visit_Dict(self, node):
+        self.generic_visit(node)
+        key = ast.unparse(node)
+        if key in self.temp_store:
+            return ast.Name(id=self.temp_store[key], ctx=ast.Load())
+        return node
+
+    def visit_List(self, node):
+        self.generic_visit(node)
+        key = ast.unparse(node)
+        if key in self.temp_store:
+            return ast.Name(id=self.temp_store[key], ctx=ast.Load())
+        return node
+
+
+class ObjUpdater(ast.NodeTransformer):
+    def __init__(self, mapped_ids, temp_store):
+        self.mapped_ids = mapped_ids
+        self.temp_store = temp_store
+
+    def visit_FunctionDef(self, node):
+        self.generic_visit(node)
+
+        if node.name in self.mapped_ids:
+            #new_nodes = []
+            idx = 0
+            for obj_str in self.mapped_ids[node.name]:
+                assign_stmt = ast.parse(
+                    f"{self.temp_store[obj_str]} = {obj_str}"
+                )
+                node.body.insert(0, assign_stmt)
+                idx += 1 
+
+
+            #node.body = new_nodes + node.body
+        ast.fix_missing_locations(node)
+        return node
+
+    def visit_Module(self, node):
+        self.generic_visit(node)
+
+        if "module" in self.mapped_ids:
+            new_nodes = []
+            idx = 0
+            for obj_str in self.mapped_ids["module"]:
+                assign_stmt = ast.parse(
+                    f"{self.temp_store[obj_str]} = {obj_str}"
+                )
+                #new_nodes.append(assign_stmt)
+                node.body.insert(0, assign_stmt)
+                idx += 1
+
+        ast.fix_missing_locations(node)
+        return node
+
+
+class objGrouper(ast.NodeTransformer):
+
+    def __init__(self, new_mapings):
+        self.new_mappings = new_mapings
+    def visit_Assign(self, node):
+        self.generic_visit(node)
+        if node.targets[0].id in self.new_mappings:
+            node = ast.parse(
+                f"{node.targets[0].id} = {self.new_mappings[node.targets[0].id]}"
+            )
+            ast.fix_missing_locations(node)
+            return node
+        return node
+
+    def visit_Dict(self, node):
+        self.generic_visit(node)
+        for k, v in self.new_mappings.items():
+            if ast.unparse(node) == v:
+                return ast.Name(id=k, ctx=ast.Load())
+        return node
+
+    def visit_List(self, node):
+        self.generic_visit(node)
+        for k, v in self.new_mappings.items():
+            if ast.unparse(node) == v:
+                return ast.Name(id=k, ctx=ast.Load())
+        return node
+
+class StructRef:
+
+    def final_map(self, parent_map):
+        idx = 0
+        final_map = {}
+        temp_store = {}
+
+        for obj, parent in parent_map.items():
+            if not isinstance(obj, (ast.Dict, ast.List)):
+                continue
+
+            if isinstance(parent, ast.Assign):
+                continue
+
+            current = parent
+            while not isinstance(current, (ast.FunctionDef, ast.Module)):
+                current = parent_map.get(current)
+                if current is None:
+                    break
+
+            if current is None:
+                continue
+
+            key = ast.unparse(obj)
+
+            if isinstance(current, ast.FunctionDef):
+                final_map.setdefault(current.name, []).append(key)
+            else:
+                final_map.setdefault("module", []).append(key)
+
+            # Store temp name
+            temp_name = f"dict{idx}" if isinstance(obj, ast.Dict) else f"list{idx}"
+            temp_store[key] = temp_name
+            idx += 1
+
+        return final_map, temp_store
+    
+    def grouper(self, old_mappings):
+        new_mappings = {}
+        for i in old_mappings:
+            for j in old_mappings:
+                if i != j and i in j:
+                    new_str = j.replace(i, old_mappings[i])
+                    new_mappings[old_mappings[j]] = new_str
+        return new_mappings
+
+    def get_refactored_code(self, code):
+        try:
+            tree = ast.parse(code)
+
+            parent_assigner = ParentAssigner()
+            parent_assigner.visit(tree)
+
+            mapped_ids, temp_store = self.final_map(parent_assigner.parent_map)
+            new_mappings = self.grouper(temp_store)
+            print(mapped_ids)
+            print(temp_store)
+            print(new_mappings)
+            tree = ObjRenamer(temp_store).visit(tree)
+
+            # Step 2: Insert definitions
+            tree = ObjUpdater(mapped_ids, temp_store).visit(tree)
+            tree = objGrouper(new_mappings).visit(tree)
+            ast.fix_missing_locations(tree)
+
+            return ast.unparse(tree)
+
+        except SyntaxError as e:
+            return f"Error occurred: {e}"
