@@ -1,0 +1,53 @@
+import os
+import ast
+from codebleu import calc_codebleu
+
+def calculate_diversity(source_dir, target_dir, no_pipelines):
+    diversity_scores = []
+    for py_file in os.listdir(source_dir):
+        if py_file[-3:] != ".py":
+            continue
+
+        filename = py_file[:-3]
+        file_path = os.path.join(source_dir, py_file)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            source_content = f.read()
+            f.close()
+
+        target_folder = os.path.join(target_dir, filename)
+        total_res = 0
+
+        for tar_py_file in os.listdir(target_folder):
+            if tar_py_file[-3:] != ".py":
+                continue
+
+            tar_file_path = os.path.join(target_folder, tar_py_file)
+            with open(tar_file_path, "r", encoding="utf-8") as f:
+                target_content = f.read()
+                f.close()
+
+            # print(f"Comparing {py_file[:-3]} with {tar_py_file[:-3]}")
+            current_res = calc_codebleu(
+                [source_content],
+                [target_content],
+                lang="python",
+                weights=(0.25, 0.25, 0.25, 0.25),
+                tokenizer=None
+            )
+
+            total_res += current_res['codebleu']
+
+            # print(f"Score:{1-current_res['codebleu']}")
+
+        # print(total_res)
+        diversity_scores.append(1 - (total_res / no_pipelines))
+
+    return sum(diversity_scores) / len(diversity_scores)
+
+
+source_dir = "seed_input"  # folder containing all seed programs
+target_dir = "seed_output_3p"  # folder containing variants generated using 3-pipeline configuration
+no_pipelines = 3
+
+print(f"Diversity score for 3p:{calculate_diversity(source_dir, target_dir, no_pipelines)}")
