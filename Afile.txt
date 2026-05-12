@@ -1,0 +1,14 @@
+pipeline1 = [
+    ["id_gen", "ifelse"],
+    ["hard_code", "line_stmt"],
+    ["param_refact", "splitvar"],
+    ["partials", "mergeparam"],
+    ["integer_ref", "try_crypto"],
+    ["add_def_arg", "conv_assign"],
+    ["lambda", "relational"],
+    ["var_ext", "ternary"],
+    ["addexcept", "mapfilter"],
+    ["structural", "forwhile"],
+    ["shufflefuncs", "except_code"],
+    ["assertions", "conv_except"]
+]
